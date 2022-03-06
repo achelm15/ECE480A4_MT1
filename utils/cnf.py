@@ -3,7 +3,7 @@ def bool_to_cnf(func):
     sum = []
     out = []
     line_count = count_var(func)
-    #For each piece of the sum
+    #For each and gate
     for x in l:
         #If it is just a single variable
         if x.find('.')==-1:
@@ -37,37 +37,37 @@ def bool_to_cnf(func):
             out.append(and_cnf(x[:x.index('.')+3],"x"+str(line_count)))
             x = "x"+str(line_count)+x[x.index('.')+3:]
             line_count += 1
+    #For each or gate
     while len(sum):
+        #For the last or gate
         if len(sum)==1:
-            out.append(sum[0]+"\n")
+            out.append(sum[0][1:]+"\n")
             sum = []
             break
+        #Or the first two variables
         out.append(or_cnf(sum[0]+"+"+sum[1], "x"+str(line_count)))
+        #Remove the first two variables from the sum, add the output variable to the sum
         temp = ["x"+str(line_count)]
         for x in sum[2:]:
             temp.append(x)
         sum = temp
         line_count += 1
-    outFile = open("cnf.txt", "w")
+    #Write the initial CNF to the outputfile
+    outFile = open("cnf.cnf", "w")
     for x in out:
         outFile.write(x)
     outFile.close()
-    file1 = open('cnf.txt', 'r')
+    #Count the number of clauses
+    file1 = open('cnf.cnf', 'r')
     lines = file1.readlines()
     file1.close()
     clauses = len(lines)
-    outFile = open("cnf.txt", "w")
-    outFile.write("p "+str(clauses)+" "+str(line_count)+"\n")
+    #Write the header to the file
+    outFile = open("cnf.cnf", "w")
+    outFile.write("p cnf "+str(clauses)+" "+str(line_count)+"\n")
     for x in range(len(lines)):
-        if x == len(lines)-1:
-            outFile.write(lines[x][:len(lines[x])-1]+" 0")
-        else:
-            outFile.write(lines[x][:len(lines[x])-1]+" 0\n")
+        outFile.write(lines[x][:len(lines[x])-1]+" 0\n")
     outFile.close()
-
-
-
-
 
 def count_var(func):
     l = func.split("+")
@@ -85,12 +85,9 @@ def count_var(func):
             high = int(x[1:])
     return high + 1
 
-
-
 def and_cnf(func, out):
     l = func.split(".")
     out = "{a} -{c}\n{b} -{c}\n-{a} -{b} {c}\n".format(a=l[0][1:],b=l[1][1:],c=out[1:])
-    # print(out)
     return out
 
 def or_cnf(func, out):

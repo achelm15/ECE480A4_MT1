@@ -1,8 +1,11 @@
 import sys
 from utils.cnf import bool_to_cnf
+from utils.sat import sat
 
 def main():
     bool_to_cnf(parser())
+    sat("cnf.cnf")
+    
 
 def parser():
     if len(sys.argv)!=2:
