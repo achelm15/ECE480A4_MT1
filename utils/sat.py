@@ -175,7 +175,7 @@ def remove_set(formula, input):
             if i==len(form):
                 break
         if len(form)==0:
-            return True
+            return False
     for u in false_in:
         i = 0
         while True:
@@ -188,14 +188,23 @@ def remove_set(formula, input):
             if i==len(form):
                 break
         if len(form)==0:
+            return False
+    sum = []
+    for x in form:
+        if len(x)==0:
+            print("SAT with given inputs. Other inputs do not matter.")
             return True
-    sum = dupl(form)
+        if x not in sum:
+            sum.append(x)
     out = ""
-    for x in sum:
-        for j in range(len(x)):
-            if j == len(x)-1: out+=x[j]
-            else: out += x[j]+"."
-        out += "+"
+    if sum:
+        for x in sum:
+            for j in range(len(x)):
+                if j == len(x)-1: out+=x[j]
+                else: out += x[j]+"."
+            out += "+"
+    else:
+        return False
     return out[:len(out)-1]
 
 

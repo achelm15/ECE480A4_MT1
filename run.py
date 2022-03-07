@@ -11,11 +11,16 @@ def main():
             if not input.set:
                 print(input.f)
                 in_var_list = bool_to_cnf(input.f)
-                sat("cnf.cnf", in_var_list ([],[]))
+                sat("cnf.cnf", in_var_list, ([],[]))
             else:
                 removed_formula = remove_set(input.f, input.set)
                 if removed_formula:
-                    print(removed_formula)
+                    if removed_formula == True:
+                        # print("SAT")
+                        # print("Solution:")
+                        # print("\tTrue input variables: ", get_set_var(input.set)[0])
+                        # print("\tFalse input variables: ", get_set_var(input.set)[1])
+                        return
                     in_var_list = bool_to_cnf(removed_formula)
                     sat("cnf.cnf", in_var_list, get_set_var(input.set))
                 else:
@@ -56,7 +61,6 @@ def get_set_var(input):
     l = input.split(",")
     for x in l:
         if x.find("~")==-1:
-            print(x)
             truer.append(int(x[1:]))
         else:
             falser.append(int(x[2:]))
