@@ -1,7 +1,7 @@
-## ECE480A4_MT1
+# ECE480A4_MT1
 SAT Solver
 
-# TODO
+## TODO
 - Determine correctness of CNF file maker
 
 - "Your SAT tool should be able to assess the SAT with all or a set of input variables (not all the function variables) provided by the user"
