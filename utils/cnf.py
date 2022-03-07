@@ -1,6 +1,5 @@
 def bool_to_cnf(func):
     l = func.split("+")
-    print(l)
     sum = []
     out = []
     line_count = count_var(func)
@@ -19,35 +18,25 @@ def bool_to_cnf(func):
 
         #For each and within the product
         while x.find('.')!=-1:
-            print(x)
             #If one of the inputs is not-ed
             if x.find('~')!=-1:
                 if x[x.find('~'):].find('.')==-1:
-                    print(x, "ASDFASDF")
                     out.append(not_cnf(x[x.find('~'):],"x"+str(line_count)))
                     x = x[:x.find('~')]+"x"+str(line_count)
-                    print(x, "NOT")
                 else:
-                    print(x, "ASDFASDFASDFASDFASDFks")
                     out.append(not_cnf(x[x.find('~'):][:x[x.find('~'):].find('.'):],"x"+str(line_count)))
                     x = x[:x.find('~')] + "x"+str(line_count)+x[x.find('~'):][x[x.find('~'):].find('.'):]
-                    print(x, "ASDFASDFASDFASDFASDFks")
                 line_count+=1
             #If it is a single and
             if x.count(".")==1:
-                print(x, "qwerqwerqwerqwerqwer")
                 out.append(and_cnf(x,"x"+str(line_count)))
                 sum.append("x"+str(line_count))
                 line_count += 1
                 break
             #If there are multiple ands remaining
             k = x[x.index('.')+1:].index(".")+1
-            print()
-            print(x[:x.index('.')+k])
             out.append(and_cnf(x[:x.index('.')+k],"x"+str(line_count)))
             x = "x"+str(line_count)+x[x.index('.')+k:]
-            print(x)
-            print()
             line_count += 1
     #For each or gate
     while len(sum):
@@ -111,4 +100,8 @@ def not_cnf(func, out):
     l = func.split("~")
     out = "{a} {c}\n-{a} -{c}\n".format(a=l[1][1:],c=out[1:])
     return out
+
+def xor(func1, func2):
+    print("hi")
+    return "6"
 

@@ -146,3 +146,6 @@ def pure_literal(formula, new_true, new_false):
         if i == len(formula):
             break
     return formula, new_true, new_false
+
+def remove_set(input):
+    return input
