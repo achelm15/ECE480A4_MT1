@@ -6,6 +6,7 @@ To run the base program enter:
 
 ## TODO
 - Determine correctness of CNF file maker
+  - Fix multiple NOT in AND gate 
 
 - "Your SAT tool should be able to assess the SAT with all or a set of input variables (not all the function variables) provided by the user"
 
