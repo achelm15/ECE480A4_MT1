@@ -1,4 +1,4 @@
-# ECE480A4_MT1
+## ECE480A4_MT1
 SAT Solver
 
 # TODO
