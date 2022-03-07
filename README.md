@@ -1,5 +1,4 @@
-# ECE480A4_MT1
-SAT Solver
+# ECE480A4_MT1 - SAT Solver
 
 ## TODO
 - Determine correctness of CNF file maker
