@@ -1,6 +1,6 @@
 import copy
 
-def sat(file, in_var_list):
+def sat(file, in_var_list, set_var):
     inFile = open(file, 'r')
     lines = inFile.readlines()
     header = []
@@ -21,10 +21,12 @@ def sat(file, in_var_list):
     global true, false
     true, false = [], []
     if dpll(formula):
+        false = sim_dupl(false)
+        true = sim_dupl(true)
         print("SAT")
         print("Solution:")
-        print("\tTrue input variables: ", [x for x in true if "x"+str(x) in in_var_list])
-        print("\tFalse input variables: ", [x for x in false if "x"+str(x) in in_var_list])
+        print("\tTrue input variables: ", [x for x in true if "x"+str(x) in in_var_list] + set_var[0])
+        print("\tFalse input variables: ", [x for x in false if "x"+str(x) in in_var_list] + set_var[1])
     else:
         print("UNSAT")
 
@@ -66,6 +68,7 @@ def dpll(formula):
         for i in new_false:
             false.remove(i)
         return False
+        
 
 def create_formula(lines):
     formula = []
@@ -186,12 +189,7 @@ def remove_set(formula, input):
                 break
         if len(form)==0:
             return True
-    sum = []
-    for x in form:
-        if len(x)==0:
-            return False
-        if x not in sum:
-            sum.append(x)
+    sum = dupl(form)
     out = ""
     for x in sum:
         for j in range(len(x)):
@@ -199,3 +197,20 @@ def remove_set(formula, input):
             else: out += x[j]+"."
         out += "+"
     return out[:len(out)-1]
+
+
+def dupl(form):
+    sum = []
+    for x in form:
+        if len(x)==0:
+            return False
+        if x not in sum:
+            sum.append(x)
+    return sum
+
+def sim_dupl(form):
+    sum = []
+    for x in form:
+        if x not in sum:
+            sum.append(x)
+    return sum

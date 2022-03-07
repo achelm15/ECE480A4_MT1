@@ -11,21 +11,18 @@ def main():
             if not input.set:
                 print(input.f)
                 in_var_list = bool_to_cnf(input.f)
-                sat("cnf.cnf", in_var_list)
+                sat("cnf.cnf", in_var_list ([],[]))
             else:
-                print(input.set)
                 removed_formula = remove_set(input.f, input.set)
                 if removed_formula:
                     print(removed_formula)
                     in_var_list = bool_to_cnf(removed_formula)
-                    sat("cnf.cnf", in_var_list)
+                    sat("cnf.cnf", in_var_list, get_set_var(input.set))
                 else:
                     print("UNSAT")
                     return 
         else:
             xor(input.f, input.s)
-
-    
 
 def parser():
     parser = argparse.ArgumentParser(description='Python Satisfiability Solver')
@@ -34,9 +31,6 @@ def parser():
     parser.add_argument('--f', default=False, type=str, help='flag to choose equality')
     parser.add_argument('--s', default=False, type=str, help='flag to choose equality')
     parser.add_argument('--set', default=False, type=str, help='flag to choose set of inputs')
-
-
-
     args = parser.parse_args()
     if args.equality==False:
         if args.f==False:
@@ -56,11 +50,19 @@ def parser():
     return args
         
     
-    # if len(sys.argv)<=2:
-    #     print("Please enter a boolean function in proper format.")
-    #     return False
-    # func = sys.argv[1]
-    # return func
+def get_set_var(input):
+    falser = []
+    truer = []
+    l = input.split(",")
+    for x in l:
+        if x.find("~")==-1:
+            print(x)
+            truer.append(int(x[1:]))
+        else:
+            falser.append(int(x[2:]))
+                
+    return truer, falser
+
 
 if __name__ == "__main__":
     main()

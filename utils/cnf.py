@@ -19,7 +19,7 @@ def bool_to_cnf(func):
         #For each and within the product
         while x.find('.')!=-1:
             #If one of the inputs is not-ed
-            if x.find('~')!=-1:
+            while x.find('~')!=-1:
                 if x[x.find('~'):].find('.')==-1:
                     out.append(not_cnf(x[x.find('~'):],"x"+str(line_count)))
                     x = x[:x.find('~')]+"x"+str(line_count)
