@@ -2,7 +2,7 @@ def bool_to_cnf(func):
     l = func.split("+")
     sum = []
     out = []
-    line_count = count_var(func)
+    line_count, var = count_var(func)
     #For each and gate
     for x in l:
         #If it is just a single variable
@@ -69,6 +69,7 @@ def bool_to_cnf(func):
     for x in range(len(lines)):
         outFile.write(lines[x][:len(lines[x])-1]+" 0\n")
     outFile.close()
+    return var
 
 def count_var(func):
     l = func.split("+")
@@ -84,7 +85,7 @@ def count_var(func):
     for x in var:
         if int(x[1:])>high:
             high = int(x[1:])
-    return high+1
+    return high+1, var
 
 def and_cnf(func, out):
     l = func.split(".")

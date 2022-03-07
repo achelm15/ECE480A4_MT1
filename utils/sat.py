@@ -1,6 +1,6 @@
 import copy
 
-def sat(file):
+def sat(file, in_var_list):
     inFile = open(file, 'r')
     lines = inFile.readlines()
     header = []
@@ -23,8 +23,8 @@ def sat(file):
     if dpll(formula):
         print("SAT")
         print("Solution:")
-        print("\tTrue variables: ", true)
-        print("\tFalse variables: ", false)
+        print("\tTrue input variables: ", [x for x in true if "x"+str(x) in in_var_list])
+        print("\tFalse input variables: ", [x for x in false if "x"+str(x) in in_var_list])
     else:
         print("UNSAT")
 
@@ -129,7 +129,7 @@ def pure_literal(formula, new_true, new_false):
             true.append(x)
     for x in falser:
         if -x not in truer and x not in false_only:
-            false_only.append(x)
+            false_only.append(-x)
             false.append(-x)
     new_true += true_only
     new_false += false_only
@@ -147,5 +147,55 @@ def pure_literal(formula, new_true, new_false):
             break
     return formula, new_true, new_false
 
-def remove_set(input):
-    return input
+def remove_set(formula, input):
+    input = input.split(",")
+    true_in = []
+    false_in = []
+    for x in input:
+        if x.find("~")==-1:
+            true_in.append(x)
+        else:
+            false_in.append(x)
+    l = formula.split("+")
+    form = []
+    for x in l:
+        form.append(x.split('.'))
+    for u in true_in:
+        i = 0
+        while True:
+            if u in form[i]:
+                form[i].remove(u)
+            elif "~"+u in form[i]:
+                form.remove(form[i])
+                i -= 1
+            i += 1
+            if i==len(form):
+                break
+        if len(form)==0:
+            return True
+    for u in false_in:
+        i = 0
+        while True:
+            if u in form[i]:
+                form[i].remove(u)
+            elif u[1:] in form[i]:
+                form.remove(form[i])
+                i -= 1
+            i += 1
+            if i==len(form):
+                break
+        if len(form)==0:
+            return True
+    sum = []
+    for x in form:
+        if len(x)==0:
+            return False
+        if x not in sum:
+            sum.append(x)
+    out = ""
+    for x in sum:
+        for j in range(len(x)):
+            if j == len(x)-1: out+=x[j]
+            else: out += x[j]+"."
+        out += "+"
+    return out[:len(out)-1]

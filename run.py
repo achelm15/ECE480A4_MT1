@@ -10,12 +10,18 @@ def main():
         if not input.equality:
             if not input.set:
                 print(input.f)
-                bool_to_cnf(input.f)
-                sat("testt.cnf")
+                in_var_list = bool_to_cnf(input.f)
+                sat("cnf.cnf", in_var_list)
             else:
                 print(input.set)
-                remove_set(input.f, input.set)
-
+                removed_formula = remove_set(input.f, input.set)
+                if removed_formula:
+                    print(removed_formula)
+                    in_var_list = bool_to_cnf(removed_formula)
+                    sat("cnf.cnf", in_var_list)
+                else:
+                    print("UNSAT")
+                    return 
         else:
             xor(input.f, input.s)
 
