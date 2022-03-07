@@ -83,7 +83,7 @@ def count_var(func):
     for x in var:
         if int(x[1:])>high:
             high = int(x[1:])
-    return high + 1
+    return high
 
 def and_cnf(func, out):
     l = func.split(".")
