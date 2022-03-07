@@ -17,7 +17,7 @@ def sat(file):
     header = header.split()
     num_clauses = int(header[2])
     num_var = int(header[3])
-    formula = create_formulas(lines)
+    formula = create_formula(lines)
     global true, false
     true, false = [], []
     if dpll(formula):
@@ -32,38 +32,8 @@ def dpll(formula):
     res = []
     [res.append(x) for x in formula if x not in res]
     formula = res
-    unit = [j[0] for j in formula if len(j)==1]
-    new_true = []
-    new_false = []
-    if len(unit)!=0:
-        for u in unit:
-            if u<0:
-                false.append(-u)
-                new_false.append(-u)
-                i = 0
-                while True:
-                    if u in formula[i]:
-                        formula.remove(formula[i])
-                        i -= 1
-                    elif -u in formula[i]:
-                        formula[i].remove(-u)
-                    i += 1
-                    if i==len(formula):
-                        break
-            else:
-                true.append(u)
-                new_true.append(u)
-                i = 0
-                while True:
-                    if u in formula[i]:
-                        formula.remove(formula[i])
-                        i -= 1
-                    elif -u in formula[i]:
-                        formula[i].remove(-u)
-                    
-                    i += 1
-                    if i==len(formula):
-                        break
+    formula, new_true, new_false = unit_propogate(formula)
+    formula, new_true, new_false = pure_literal(formula, new_true, new_false)
     if len(formula)==0:
         return True
     null = False
@@ -97,9 +67,7 @@ def dpll(formula):
             false.remove(i)
         return False
 
-
-
-def create_formulas(lines):
+def create_formula(lines):
     formula = []
     count = 1
     for x in lines:
@@ -109,3 +77,72 @@ def create_formulas(lines):
         formula.append(var_list)
         count += 1
     return formula
+
+def unit_propogate(formula):
+    unit = [j[0] for j in formula if len(j)==1]
+    new_true = []
+    new_false = []
+    if len(unit)!=0:
+        for u in unit:
+            if u<0:
+                false.append(-u)
+                new_false.append(-u)
+                i = 0
+                while True:
+                    if u in formula[i]:
+                        formula.remove(formula[i])
+                        i -= 1
+                    elif -u in formula[i]:
+                        formula[i].remove(-u)
+                    i += 1
+                    if i==len(formula):
+                        break
+            else:
+                true.append(u)
+                new_true.append(u)
+                i = 0
+                while True:
+                    if u in formula[i]:
+                        formula.remove(formula[i])
+                        i -= 1
+                    elif -u in formula[i]:
+                        formula[i].remove(-u)
+                    i += 1
+                    if i==len(formula):
+                        break
+    return formula, new_true, new_false
+
+def pure_literal(formula, new_true, new_false):
+    if len(formula)==0:
+        return formula, new_true, new_false
+    falser = []
+    truer = []
+    for x in formula:
+        for j in x:
+            if j>0: truer.append(j)
+            else: falser.append(j)
+    true_only = []
+    false_only = []
+    for x in truer:
+        if -x not in falser and x not in true_only:
+            true_only.append(x)
+            true.append(x)
+    for x in falser:
+        if -x not in truer and x not in false_only:
+            false_only.append(x)
+            false.append(-x)
+    new_true += true_only
+    new_false += false_only
+    i = 0
+    while True:
+        removal = False
+        for j in formula[i]:
+            if j in new_true or j in new_false:
+                removal = True
+        if removal:
+            formula.remove(formula[i])
+            i -= 1
+        i += 1
+        if i == len(formula):
+            break
+    return formula, new_true, new_false
