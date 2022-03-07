@@ -1,8 +1,9 @@
 # ECE480A4_MT1 - SAT Solver
-To run the program enter:
+To run the base program enter:
 `python run.py "boolean function"`
 - The boolean function must use variables in the form xN, with N being the Nth number.
 - The boolean function must be in SoP form
+
 ## TODO
 - Determine correctness of CNF file maker
 
