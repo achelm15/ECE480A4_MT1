@@ -9,23 +9,45 @@ def main():
     if input:
         if not input.equality:
             if not input.set:
-                print(input.f)
-                in_var_list = bool_to_cnf(input.f)
-                sat("cnf.cnf", in_var_list, ([],[]))
-            else:
-                removed_formula = remove_set(input.f, input.set)
-                if removed_formula:
-                    if removed_formula == True:
-                        # print("SAT")
-                        # print("Solution:")
-                        # print("\tTrue input variables: ", get_set_var(input.set)[0])
-                        # print("\tFalse input variables: ", get_set_var(input.set)[1])
-                        return
-                    in_var_list = bool_to_cnf(removed_formula)
-                    sat("cnf.cnf", in_var_list, get_set_var(input.set))
-                else:
+                bool_to_cnf(input.f, [])
+                tot = []
+                while True:
+                    returned = sat("cnf.cnf")
+                    if returned:
+                        tot.append(returned)
+                    else:
+                        break
+                if len(tot)==0:
                     print("UNSAT")
-                    return 
+                    return
+                else:
+                    outFile = open("output.txt","w")
+                    for x in tot:
+                        outFile.write(x)
+                    outFile.close()
+
+            else:
+                addition = remove_set(input.f, input.set)
+                bool_to_cnf(input.f, addition)
+                # inFile = open("cnf.cnf", "a")
+                # for x in addition:
+                #     inFile.write(x)
+                # inFile.close()
+                tot = []
+                while True:
+                    returned = sat("cnf.cnf")
+                    if returned:
+                        tot.append(returned)
+                    else:
+                        break
+                if len(tot)==0:
+                    print("UNSAT")
+                    return
+                else:
+                    outFile = open("output.txt","w")
+                    for x in tot:
+                        outFile.write(x)
+                    outFile.close()
         else:
             xor(input.f, input.s)
 

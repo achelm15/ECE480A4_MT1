@@ -1,4 +1,4 @@
-def bool_to_cnf(func):
+def bool_to_cnf(func, addition):
     l = func.split("+")
     sum = []
     out = []
@@ -65,9 +65,11 @@ def bool_to_cnf(func):
     clauses = len(lines)
     #Write the header to the file
     outFile = open("cnf.cnf", "w")
-    outFile.write("p cnf "+str(clauses)+" "+str(line_count)+"\n")
+    outFile.write("p cnf "+str(clauses)+" "+str(line_count-1)+"\n")
     for x in range(len(lines)):
         outFile.write(lines[x][:len(lines[x])-1]+" 0\n")
+    for x in addition:
+        outFile.write(x)
     outFile.close()
     return var
 
