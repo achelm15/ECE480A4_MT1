@@ -1,5 +1,4 @@
 import copy
-import numpy as np
 
 def sat(file):
     inFile = open(file, 'r')
@@ -47,7 +46,6 @@ def sat(file):
         inFile.close()
         return output
     else:
-        # print("UNSAT")
         return False
 
 def dpll(formula):
@@ -102,7 +100,7 @@ def create_formula(lines):
     return formula
 
 def unit_propogate(formula):
-    unit = [j[0] for j in formula if len(j)==1]
+    unit = [j[0] for j in formula if len(j)==1 and j[0]]
     new_true = []
     new_false = []
     if len(unit)!=0:
@@ -160,7 +158,7 @@ def pure_literal(formula, new_true, new_false):
     while True:
         removal = False
         for j in formula[i]:
-            if j in new_true or j in new_false:
+            if j in new_true or -j in new_false:
                 removal = True
         if removal:
             formula.remove(formula[i])
@@ -171,7 +169,7 @@ def pure_literal(formula, new_true, new_false):
     return formula, new_true, new_false
 
 
-def remove_set(formula,input):
+def remove_set(input):
     input = input.split(",")
     var = []
     for x in input:
@@ -253,3 +251,37 @@ def sim_dupl(form):
         if x not in sum:
             sum.append(x)
     return sum
+
+# def minimum(num_var):
+#     inFile = open("output.txt", "r")
+#     lines = inFile.readlines()
+#     for x in range(len(lines)):
+#         lines[x]=lines[x].split()[:num_var]
+#     for x in lines:
+#         for j in range(len(x)):
+#             x[j] = int(x[j])
+#         print(x)
+#     smallest = lines[0]
+    # differ = [0]*120
+    # for j in range(0,len(lines)):
+    #     for x in range(j+1,len(lines)):
+    #         diff = set.intersection(set(lines[j]),set(lines[x]))
+    #         if len(diff)<len(differ):
+    #             differ = diff
+    # print(differ)
+    
+def minimum(formula):
+    form = formula.split("+")
+    form = [k.split(".") for k in form]
+    smallest = [0]*10000000
+    for x in form:
+        if len(x)<len(smallest):
+            smallest = x
+    sm = ""
+    for x in smallest:
+        if x.find("~")!=-1:
+            sm += "-"+x[2:]+" "
+        else:
+            sm += x[1:]+" "
+    print("Smallest set of input Variables: ", sm+" 0")
+    return sm[:len(sm)-1]

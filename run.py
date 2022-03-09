@@ -1,7 +1,7 @@
 import sys
 from tkinter import E
 from utils.cnf import bool_to_cnf, xor
-from utils.sat import sat, remove_set
+from utils.sat import sat, remove_set, minimum
 import argparse
 
 def main():
@@ -24,15 +24,13 @@ def main():
                     outFile = open("output.txt","w")
                     for x in tot:
                         outFile.write(x)
+                    outFile.write("\n\nSmallest set of input variables: "+minimum(input.f))
                     outFile.close()
+                    
 
             else:
-                addition = remove_set(input.f, input.set)
+                addition = remove_set(input.set)
                 bool_to_cnf(input.f, addition)
-                # inFile = open("cnf.cnf", "a")
-                # for x in addition:
-                #     inFile.write(x)
-                # inFile.close()
                 tot = []
                 while True:
                     returned = sat("cnf.cnf")
