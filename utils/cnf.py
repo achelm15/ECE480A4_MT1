@@ -104,7 +104,129 @@ def not_cnf(func, out):
     out = "{a} {c}\n-{a} -{c}\n".format(a=l[1][1:],c=out[1:])
     return out
 
-def xor(func1, func2):
-    print("hi")
-    return "6"
+#################### XOR functions ############################################
 
+# inverts from SoP to PoS
+def invert(lst):
+    new_lst = []
+    
+   #----for each clause, split on . invert sign and restitch--------------
+    
+   #iterate through clauses
+    for i in range(len(lst)):
+        #split on . 
+        tmp = lst[i].split('.')
+        
+        #iterate through clause
+        tmp_lst = []
+        for item in tmp:
+            
+            #invert signs
+            if item.startswith('~'):
+                var = item.split('~')
+                inverse = var[1]
+            else:    
+                inverse = '~{}'.format(item)
+            # add to temp list with .
+            tmp_lst.append('{}+'.format(inverse))
+        #join temp list to string
+        new_arg = "".join(tmp_lst)
+    
+        #replace in original lst
+        
+        new_lst.append(new_arg)
+        
+        #take last . off
+        for i in range(len(new_lst)):
+            new_lst[i] = new_lst[i].rstrip('+')
+           
+    return new_lst
+
+# helper for expand, take list of form [x1.x2,x3.x4] and return 'x1.x2+x3.x4'
+def format_sop(lst):
+    new_lst = []
+    for item in lst:
+        new_lst.append('{}+'.format(item))
+    sop_str  = "".join(new_lst)
+    return sop_str[:len(sop_str)-1]
+ 
+# multiply PoS clause values by eachother
+# inputs are in form ['x1+x2','x3+x4'] from invert
+def expand(lst):
+    
+    #--------- expand first 2 terms 
+    # split first clause at +
+    
+    c0 = lst[0].split('+')
+    c1 = lst[1].split('+')
+    
+    # make new list with combined terms
+    final = []
+    # iterate through first clause
+    for item in c0:
+        #iterate through second clause
+        for var in c1:
+            final.append('{}.{}'.format(item, var))
+    # return final if there are only two terms
+    if len(lst) <= 2:
+        final = format_sop(final)
+        return final
+    else:
+        # if there are more than 2 clauses, create terms with final
+        final2 = []
+        k = 2
+        # iterate through list starting at lst[2]
+        while k < len(lst):
+            # split lst[k] at +
+            cx = lst[k].split('+')
+            #append term with each of cx to each of final
+            for item in final:
+                for var in cx:
+                    final2.append('{}.{}'.format(item,var))
+            k = k + 1
+        final2 = format_sop(final2)
+        return final2
+
+
+def var_list(string):
+    # split to product groups
+    p_groups = string.split('+')
+    
+    return p_groups
+
+# xor creates the POS version of the input by inverting and xor'ing
+ 
+def xor(func1, func2):
+
+    # split functions into seaprate arguments
+    vars1, vars2 = var_list(func1), var_list(func2)
+
+    #invert sign terms and return in PoS form
+    inv1,inv2 = invert(vars1), invert(vars2)
+       
+    #expand to SoP form
+    exp1,exp2 = expand(inv1) , expand(inv2)
+    
+    # TODO add checker for redundant and impossible terms
+    
+    # implement XOR by expanding exp and func
+    
+    in1 = [exp1,func2]
+    in2 = [exp2,func1]
+    
+    xor1 = expand(in1)
+    xor2 = expand(in2)
+   
+    return '{}+{}'.format(xor1,xor2)
+    
+# TODO change bool_to_cf to allow for different files to be written
+# TODO implement bool_to_cf in xor for result 
+# =============================================================================
+# test1 = 'a.b+c.d'
+# test2 = 'a.c+b.c'
+# 
+# a = xor(test1,test2)
+# print(a)
+# 
+# bool_to_cnf('x1.x2+x1.x3')
+# =============================================================================
