@@ -1,8 +1,8 @@
-def bool_to_cnf(func):
+def bool_to_cnf(func, addition):
     l = func.split("+")
     sum = []
     out = []
-    line_count = count_var(func)
+    line_count, var = count_var(func)
     #For each and gate
     for x in l:
         #If it is just a single variable
@@ -19,7 +19,7 @@ def bool_to_cnf(func):
         #For each and within the product
         while x.find('.')!=-1:
             #If one of the inputs is not-ed
-            if x.find('~')!=-1:
+            while x.find('~')!=-1:
                 if x[x.find('~'):].find('.')==-1:
                     out.append(not_cnf(x[x.find('~'):],"x"+str(line_count)))
                     x = x[:x.find('~')]+"x"+str(line_count)
@@ -65,10 +65,13 @@ def bool_to_cnf(func):
     clauses = len(lines)
     #Write the header to the file
     outFile = open("cnf.cnf", "w")
-    outFile.write("p cnf "+str(clauses)+" "+str(line_count)+"\n")
+    outFile.write("p cnf "+str(clauses)+" "+str(line_count-1)+"\n")
     for x in range(len(lines)):
         outFile.write(lines[x][:len(lines[x])-1]+" 0\n")
+    for x in addition:
+        outFile.write(x)
     outFile.close()
+    return var
 
 def count_var(func):
     l = func.split("+")
@@ -84,7 +87,7 @@ def count_var(func):
     for x in var:
         if int(x[1:])>high:
             high = int(x[1:])
-    return high+1
+    return high+1, var
 
 def and_cnf(func, out):
     l = func.split(".")

@@ -9,17 +9,47 @@ def main():
     if input:
         if not input.equality:
             if not input.set:
-                print(input.f)
-                bool_to_cnf(input.f)
-                sat("testt.cnf")
-            else:
-                print(input.set)
-                remove_set(input.f, input.set)
+                bool_to_cnf(input.f, [])
+                tot = []
+                while True:
+                    returned = sat("cnf.cnf")
+                    if returned:
+                        tot.append(returned)
+                    else:
+                        break
+                if len(tot)==0:
+                    print("UNSAT")
+                    return
+                else:
+                    outFile = open("output.txt","w")
+                    for x in tot:
+                        outFile.write(x)
+                    outFile.close()
 
+            else:
+                addition = remove_set(input.f, input.set)
+                bool_to_cnf(input.f, addition)
+                # inFile = open("cnf.cnf", "a")
+                # for x in addition:
+                #     inFile.write(x)
+                # inFile.close()
+                tot = []
+                while True:
+                    returned = sat("cnf.cnf")
+                    if returned:
+                        tot.append(returned)
+                    else:
+                        break
+                if len(tot)==0:
+                    print("UNSAT")
+                    return
+                else:
+                    outFile = open("output.txt","w")
+                    for x in tot:
+                        outFile.write(x)
+                    outFile.close()
         else:
             xor(input.f, input.s)
-
-    
 
 def parser():
     parser = argparse.ArgumentParser(description='Python Satisfiability Solver')
@@ -28,9 +58,6 @@ def parser():
     parser.add_argument('--f', default=False, type=str, help='flag to choose equality')
     parser.add_argument('--s', default=False, type=str, help='flag to choose equality')
     parser.add_argument('--set', default=False, type=str, help='flag to choose set of inputs')
-
-
-
     args = parser.parse_args()
     if args.equality==False:
         if args.f==False:
@@ -50,11 +77,18 @@ def parser():
     return args
         
     
-    # if len(sys.argv)<=2:
-    #     print("Please enter a boolean function in proper format.")
-    #     return False
-    # func = sys.argv[1]
-    # return func
+def get_set_var(input):
+    falser = []
+    truer = []
+    l = input.split(",")
+    for x in l:
+        if x.find("~")==-1:
+            truer.append(int(x[1:]))
+        else:
+            falser.append(int(x[2:]))
+                
+    return truer, falser
+
 
 if __name__ == "__main__":
     main()
