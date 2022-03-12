@@ -1,6 +1,6 @@
 import sys
 from tkinter import E
-from utils.cnf import bool_to_cnf, xor
+from utils.cnf import bool_to_cnf, xor, xor2
 from utils.sat import sat, remove_set, minimum
 import argparse
 
@@ -26,8 +26,6 @@ def main():
                         outFile.write(x)
                     outFile.write("\n\nSmallest set of input variables: "+minimum(input.f))
                     outFile.close()
-                    
-
             else:
                 addition = remove_set(input.set)
                 bool_to_cnf(input.f, addition)
@@ -45,9 +43,19 @@ def main():
                     outFile = open("output.txt","w")
                     for x in tot:
                         outFile.write(x)
+                    outFile.write("\n\nSmallest set of input variables: "+minimum(input.f))
                     outFile.close()
         else:
-            xor(input.f, input.s)
+            xorred = xor2(input.f, input.s)
+            if not xorred:
+                print("Functions are equal") 
+                return 
+            bool_to_cnf(xorred, [])
+            returned = sat("cnf.cnf")
+            if returned:
+                print("Fuctions are not equal")
+            else:
+                print("Functions are equal")            
 
 def parser():
     parser = argparse.ArgumentParser(description='Python Satisfiability Solver')

@@ -1,3 +1,5 @@
+import numpy as np
+
 def bool_to_cnf(func, addition):
     l = func.split("+")
     sum = []
@@ -230,3 +232,66 @@ def xor(func1, func2):
 # 
 # bool_to_cnf('x1.x2+x1.x3')
 # =============================================================================
+
+def xor2(f,s):
+    f = f.split("+")
+    s = s.split("+")
+    for i in range(len(f)):
+        f[i]=f[i].split(".")
+    for i in range(len(s)):
+        s[i]=s[i].split(".")
+    
+    notf = notXOR(f)
+    nots = notXOR(s)
+    multf = removal(mult(notf))
+    mults = removal(mult(nots))
+    temp = mult2(multf,s)
+    temp2 = mult2(mults,f)
+    xor = temp + temp2
+    mul = []
+    for x in xor:
+        mul.append(".".join(x))
+    out = "+".join(mul)
+    return out
+
+
+def notXOR(f):
+    notf = []
+    for x in f:
+        temp = []
+        for j in x:
+            if j.find("~")==-1: temp.append("~"+j)
+            else: temp.append(j[1:])
+        notf.append(temp)
+    return notf
+
+def mult(notf):
+    while len(notf)>1:
+        temp = []
+        for x in notf[0]:
+            for j in notf[1]:
+                temp.append(x+"."+j)
+        notf = [temp] + notf[2:]
+    notf = [x.split(".") for x in notf[0]]
+    out = [sorted(np.unique(np.asanyarray(x,dtype=object)).tolist()) for x in notf]
+    return out
+
+def mult2(f,s):
+    out = []
+    for x in f:
+        for j in s:
+            for u in x: temp = np.unique(x+j).tolist()
+            out.append(temp)
+    return removal(out)
+
+def removal(out):
+    out2 = []
+    for x in out:
+        flag = False
+        for j in x:
+            if j[1:] in x or "~"+j in x:
+                flag = True
+        if not flag:
+            out2.append(x)
+    return out2
+

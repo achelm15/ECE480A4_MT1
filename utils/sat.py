@@ -1,17 +1,17 @@
 import copy
 
 def sat(file):
-    inFile = open(file, 'r')
+    inFile = open(file, "r")
     lines = inFile.readlines()
     header = []
     count = 0
     for x in lines:
-        if x[0]=='c':
-            count+=1
+        if x[0] == "c":
+            count += 1
             continue
-        if x[0]=='p':
+        if x[0] == "p":
             header = x
-            count+=1
+            count += 1
             break
     lines = lines[count:]
     header = header.split()
@@ -25,28 +25,43 @@ def sat(file):
         true = sim_dupl(true)
         print("SAT")
         print("Solution:")
-        print("\tTrue input variables: ", true)
-        print("\tFalse input variables: ", false)
+        print("\tTrue input variables: ", sorted(true))
+        print("\tFalse input variables: ", sorted(false))
         addition = ""
         output = ""
-        temp = [0]*(len(true)+len(false))
+        temp = [0] * num_var
+        # temp = [0]*(len(true)+len(false))
         for x in true:
-            temp[abs(x)-1]=x
+            temp[abs(x) - 1] = x
         for x in false:
-            temp[abs(x)-1]=-x
-        for x, i in enumerate(temp):
-            if abs(x)!=i:
-                x = i
-            addition += str(-x)+" "
-            output += str(x)+" "
-        addition += "0\n"
-        output += "0\n"
+            temp[abs(x) - 1] = -x
+        temp2 = []
+        for i, x in enumerate(temp):
+            if x == 0:
+                print(i, x)
+                tc = copy.deepcopy(temp)
+                temp[i] = i + 1
+                tc[i] = -(i + 1)
+                temp2.append(temp)
+                temp2.append(tc)
+        if len(temp2) == 0:
+            temp2.append(temp)
+        for l in temp2:
+            for x, i in enumerate(l):
+                if abs(x) != i:
+                    x = i
+                addition += str(-x) + " "
+                output += str(x) + " "
+            addition += "0\n"
+            output += "0\n"
         inFile = open(file, "a")
         inFile.write(addition)
         inFile.close()
         return output
+        
     else:
         return False
+
 
 def dpll(formula):
     res = []
@@ -54,12 +69,12 @@ def dpll(formula):
     formula = res
     formula, new_true, new_false = unit_propogate(formula)
     formula, new_true, new_false = pure_literal(formula, new_true, new_false)
-    if len(formula)==0:
+    if len(formula) == 0:
         return True
     null = False
     new_var = []
     for x in formula:
-        if len(x)==0:
+        if len(x) == 0:
             null = True
         else:
             for j in x:
@@ -86,62 +101,56 @@ def dpll(formula):
         for i in new_false:
             false.remove(i)
         return False
-        
+
 
 def create_formula(lines):
     formula = []
     count = 1
     for x in lines:
         var_list = []
-        for j in x[:len(x)-3].split():
+        for j in x[: len(x) - 3].split():
             var_list.append(int(j))
         formula.append(var_list)
         count += 1
     return formula
 
+
 def unit_propogate(formula):
-    unit = [j[0] for j in formula if len(j)==1 and j[0]]
+    unit = [j[0] for j in formula if len(j) == 1 and j[0]]
     new_true = []
     new_false = []
-    if len(unit)!=0:
+    if len(unit) != 0:
         for u in unit:
-            if u<0:
+            if u < 0:
                 false.append(-u)
                 new_false.append(-u)
-                i = 0
-                while True:
-                    if u in formula[i]:
-                        formula.remove(formula[i])
-                        i -= 1
-                    elif -u in formula[i]:
-                        formula[i].remove(-u)
-                    i += 1
-                    if i==len(formula):
-                        break
             else:
                 true.append(u)
                 new_true.append(u)
-                i = 0
-                while True:
-                    if u in formula[i]:
-                        formula.remove(formula[i])
-                        i -= 1
-                    elif -u in formula[i]:
-                        formula[i].remove(-u)
-                    i += 1
-                    if i==len(formula):
-                        break
+            i = 0
+            while True:
+                if u in formula[i]:
+                    formula.remove(formula[i])
+                    i -= 1
+                elif -u in formula[i]:
+                    formula[i].remove(-u)
+                i += 1
+                if i == len(formula):
+                    break
     return formula, new_true, new_false
 
+
 def pure_literal(formula, new_true, new_false):
-    if len(formula)==0:
+    if len(formula) == 0:
         return formula, new_true, new_false
     falser = []
     truer = []
     for x in formula:
         for j in x:
-            if j>0: truer.append(j)
-            else: falser.append(j)
+            if j > 0:
+                truer.append(j)
+            else:
+                falser.append(j)
     true_only = []
     false_only = []
     for x in truer:
@@ -173,77 +182,22 @@ def remove_set(input):
     input = input.split(",")
     var = []
     for x in input:
-        if x.find("~")==-1:
-            var.append((x[1:])+" 0\n")
+        if x.find("~") == -1:
+            var.append((x[1:]) + " 0\n")
         else:
-            var.append(str(-int(x[2:]))+" 0\n")
+            var.append(str(-int(x[2:])) + " 0\n")
     return var
-# def remove_set(formula, input):
-#     input = input.split(",")
-#     true_in = []
-#     false_in = []
-#     for x in input:
-#         if x.find("~")==-1:
-#             true_in.append(x)
-#         else:
-#             false_in.append(x)
-#     l = formula.split("+")
-#     form = []
-#     for x in l:
-#         form.append(x.split('.'))
-#     for u in true_in:
-#         i = 0
-#         while True:
-#             if u in form[i]:
-#                 form[i].remove(u)
-#             elif "~"+u in form[i]:
-#                 form.remove(form[i])
-#                 i -= 1
-#             i += 1
-#             if i==len(form):
-#                 break
-#         if len(form)==0:
-#             return False
-#     for u in false_in:
-#         i = 0
-#         while True:
-#             if u in form[i]:
-#                 form[i].remove(u)
-#             elif u[1:] in form[i]:
-#                 form.remove(form[i])
-#                 i -= 1
-#             i += 1
-#             if i==len(form):
-#                 break
-#         if len(form)==0:
-#             return False
-#     sum = []
-#     for x in form:
-#         if len(x)==0:
-#             print("SAT with given inputs. Other inputs do not matter.")
-#             return True
-#         if x not in sum:
-#             sum.append(x)
-#     out = ""
-#     if sum:
-#         for x in sum:
-#             for j in range(len(x)):
-#                 if j == len(x)-1: out+=x[j]
-#                 else: out += x[j]+"."
-#             out += "+"
-#     else:
-#         return False
-#     return out[:len(out)-1]
 
 
 def dupl(form):
     sum = []
     for x in form:
-        if len(x)==0:
+        if len(x) == 0:
             return False
         if x not in sum:
             sum.append(x)
     return sum
+
 
 def sim_dupl(form):
     sum = []
@@ -252,36 +206,23 @@ def sim_dupl(form):
             sum.append(x)
     return sum
 
-# def minimum(num_var):
-#     inFile = open("output.txt", "r")
-#     lines = inFile.readlines()
-#     for x in range(len(lines)):
-#         lines[x]=lines[x].split()[:num_var]
-#     for x in lines:
-#         for j in range(len(x)):
-#             x[j] = int(x[j])
-#         print(x)
-#     smallest = lines[0]
-    # differ = [0]*120
-    # for j in range(0,len(lines)):
-    #     for x in range(j+1,len(lines)):
-    #         diff = set.intersection(set(lines[j]),set(lines[x]))
-    #         if len(diff)<len(differ):
-    #             differ = diff
-    # print(differ)
-    
+
 def minimum(formula):
     form = formula.split("+")
     form = [k.split(".") for k in form]
-    smallest = [0]*10000000
+    smallest = [0] * 10000000
     for x in form:
-        if len(x)<len(smallest):
+        if len(x) < len(smallest):
             smallest = x
     sm = ""
     for x in smallest:
-        if x.find("~")!=-1:
-            sm += "-"+x[2:]+" "
+        if x.find("~") != -1:
+            sm += "-" + x[2:] + " "
         else:
-            sm += x[1:]+" "
-    print("Smallest set of input Variables: ", sm+" 0")
-    return sm[:len(sm)-1]
+            sm += x[1:] + " "
+    print("Smallest set of input Variables: ", sm + " 0")
+    return sm[: len(sm) - 1]
+
+
+if __name__ == "__main__":
+    sat("out.cnf")
