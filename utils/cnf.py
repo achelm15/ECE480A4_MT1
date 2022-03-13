@@ -75,9 +75,14 @@ def bool_to_cnf(func, addition):
     outFile.close()
     return var
 
+#Function to find the number of input variables
+#And determine the next highest variable number
+#to use for output of gates in cnf
 def count_var(func):
+    #split function by ORs
     l = func.split("+")
     var = []
+    #split ANDS and find unique variables
     for x in l:
         o = x.split(".")
         for j in o:
@@ -86,21 +91,26 @@ def count_var(func):
             if j not in var:
                 var.append(j)
     high = -1
+    #Determine the highest variable number
+    #ie if x1,x2,x3,x4 are used, high would be 5
     for x in var:
         if int(x[1:])>high:
             high = int(x[1:])
     return high+1, var
 
+#Function to create and cnf in string form
 def and_cnf(func, out):
     l = func.split(".")
     out = "{a} -{c}\n{b} -{c}\n-{a} -{b} {c}\n".format(a=l[0][1:],b=l[1][1:],c=out[1:])
     return out
 
+#Function to create or cnf in string form
 def or_cnf(func, out):
     l = func.split("+")
     out = "-{a} {c}\n-{b} {c}\n{a} {b} -{c}\n".format(a=l[0][1:],b=l[1][1:],c=out[1:])
     return out
 
+#Function to create not cnf in string form
 def not_cnf(func, out):
     l = func.split("~")
     out = "{a} {c}\n-{a} -{c}\n".format(a=l[1][1:],c=out[1:])
@@ -233,7 +243,11 @@ def xor(func1, func2):
 # bool_to_cnf('x1.x2+x1.x3')
 # =============================================================================
 
+#Function to perform XOR of two boolean expressions
 def xor2(f,s):
+    #split functions into array of arrays, where the outer
+    #array represents ORs of elements, and the arrays represent 
+    #ANDs of elements
     f = f.split("+")
     s = s.split("+")
     for i in range(len(f)):
@@ -241,12 +255,15 @@ def xor2(f,s):
     for i in range(len(s)):
         s[i]=s[i].split(".")
     
-    notf = notXOR(f)
-    nots = notXOR(s)
-    multf = removal(mult(notf))
-    mults = removal(mult(nots))
-    temp = mult2(multf,s)
-    temp2 = mult2(mults,f)
+    #Perform De Morgan's Law on the function to account
+    #For negated inputs in XOR = ~A.B+A.~B
+    #Remove duplicated terms
+    deMorganF = removal(deMorgan(f))
+    deMorganS= removal(deMorgan(s))
+    #Perform the two ANDS, ~f.s, ~s.f
+    temp = mult2(deMorganF,s)
+    temp2 = mult2(deMorganS,f)
+    #Perform the OR operation
     xor = temp + temp2
     mul = []
     for x in xor:
@@ -254,36 +271,46 @@ def xor2(f,s):
     out = "+".join(mul)
     return out
 
-
-def notXOR(f):
+#Function to perform DeMorgan's Law
+def deMorgan(f):
     notf = []
+    #Invert all the inputs in the AND gates
     for x in f:
         temp = []
         for j in x:
             if j.find("~")==-1: temp.append("~"+j)
             else: temp.append(j[1:])
         notf.append(temp)
-    return notf
+    #AND the two ORs together
+    return mult(notf)
 
+#Function to AND multiple sums
 def mult(notf):
+    #Loop through input POS function
     while len(notf)>1:
+        #Multiply the first two terms
         temp = []
         for x in notf[0]:
             for j in notf[1]:
                 temp.append(x+"."+j)
+        #Replace the first two terms with their product
         notf = [temp] + notf[2:]
+    #Convert back to array
     notf = [x.split(".") for x in notf[0]]
+    #Remove duplicate terms
     out = [sorted(np.unique(np.asanyarray(x,dtype=object)).tolist()) for x in notf]
     return out
 
+#Used to multiply SUMs
 def mult2(f,s):
     out = []
     for x in f:
         for j in s:
-            for u in x: temp = np.unique(x+j).tolist()
+            temp = np.unique(x+j).tolist()
             out.append(temp)
     return removal(out)
 
+#Used to remove duplicate terms
 def removal(out):
     out2 = []
     for x in out:
